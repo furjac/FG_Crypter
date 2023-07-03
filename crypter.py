@@ -75,7 +75,7 @@ while True:
         decrypt_file(input_file, output_file)
         set_execution_permissions(output_file)
     elif choice == "3":
-        print(Fore.RED + "Exiting the Crypter." + Style.RESET_ALL)
+        print(Fore.RED + "Cleaning up FG_Crypter" + Style.RESET_ALL)
         break
     else:
         print(Fore.YELLOW + "Invalid choice. Please try again." + Style.RESET_ALL)
