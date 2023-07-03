@@ -21,6 +21,10 @@ SO there is three options in this python file
 
 So this is about i made
 
+# executable
+
+For those who cant execute python i added the FG_Crypter.exe in releases feel free to raise issue or dm me in discord
+
 # Help needed
 
 If u guys know how to do the stub and runtime component help plz open an issue or contact me in dm
