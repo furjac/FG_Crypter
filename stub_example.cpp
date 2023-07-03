@@ -9,7 +9,7 @@
 using namespace CryptoPP;
 
 void decryptAndExecute(const std::string& encryptedFilePath, const std::string& keyStr, const std::string& ivStr) {
-    byte key[AES::DEFAULT_KEYLENGTH];
+    byte key[32];
     byte iv[AES::BLOCKSIZE];
 
     // Convert hex-encoded key and iv strings to bytes
