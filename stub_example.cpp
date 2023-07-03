@@ -1,3 +1,4 @@
+//help me with this code so that i can continue for further work to create a successful crypter
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -36,8 +37,6 @@ void decryptAndExecute(const std::string& encryptedFilePath, const std::string& 
 
     // Execute the decrypted code
     std::cout << "Executing decrypted code..." << std::endl;
-    // Your code here to execute the decrypted data as needed
-
     std::cout << "Decryption and execution completed successfully." << std::endl;
 }
 
