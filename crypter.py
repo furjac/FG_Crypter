@@ -10,32 +10,43 @@ def generate_random_key(key_size):
     return os.urandom(key_size)
 
 
+def generate_random_iv():
+    return os.urandom(16)  # Generate a random 128-bit IV
+
+
 def encrypt_file(input_file, output_file):
     key = generate_random_key(32)  # Generate a random 256-bit key
-    cipher = AES.new(key, AES.MODE_ECB)
+    iv = generate_random_iv()
+    cipher = AES.new(key, AES.MODE_CBC, iv)
     with open(input_file, 'rb') as f_in, open(output_file, 'wb') as f_out:
+        f_out.write(iv)  # Write the IV to the output file
         while True:
-            chunk = f_in.read(16)
-            if not chunk:
+            chunk = f_in.read(32)
+            if len(chunk) == 0:
                 break
-            padded_chunk = pad(chunk, 16)
-            encrypted_chunk = cipher.encrypt(padded_chunk)
+            elif len(chunk) % 32 != 0:
+                chunk = pad(chunk, 32)  # Pad the chunk if its length is not a multiple of 32
+            encrypted_chunk = cipher.encrypt(chunk)
             f_out.write(encrypted_chunk)
 
     print(Fore.GREEN + "Encryption completed successfully.")
-    print("Encryption Key: " + key.hex() + Style.RESET_ALL)
+    print("Encryption Key: " + key.hex())
+    print("Encryption IV: " + iv.hex() + Style.RESET_ALL)
 
 
 def decrypt_file(input_file, output_file):
     key = input("Enter the encryption key: ")
     key = bytes.fromhex(key)
-    cipher = AES.new(key, AES.MODE_ECB)
+    iv = input("Enter the encryption IV: ")
+    iv = bytes.fromhex(iv)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
     with open(input_file, 'rb') as f_in, open(output_file, 'wb') as f_out:
+        iv = f_in.read(16)  # Read the IV from the input file
         while True:
             encrypted_chunk = f_in.read(32)
-            if not encrypted_chunk:
+            if len(encrypted_chunk) == 0:
                 break
-            decrypted_chunk = unpad(cipher.decrypt(encrypted_chunk), 32)
+            decrypted_chunk = cipher.decrypt(encrypted_chunk)
             f_out.write(decrypted_chunk)
 
     print(Fore.GREEN + "Decryption completed successfully." + Style.RESET_ALL)
@@ -54,7 +65,7 @@ def set_execution_permissions(file_path):
 def display_menu():
     print(Fore.CYAN + "Welcome to the FG_Crypter!" + Style.RESET_ALL)
     print("Please select an option:")
-    print("1. Encrypt a file")
+    print(Fore.YELLOW + "1. Encrypt a file")
     print("2. Decrypt a file")
     print("3. Quit" + Style.RESET_ALL)
 
@@ -62,20 +73,20 @@ def display_menu():
 # Example usage
 while True:
     display_menu()
-    choice = input("Enter your choice: ")
+    choice = input(Fore.CYAN + "Enter your choice: " + Style.RESET_ALL)
 
     if choice == "1":
-        input_file = input("Enter the path of the input file: ")
-        output_file = input("Enter the path of the output file: ")
+        input_file = input(Fore.YELLOW + "Enter the path of the input file: " + Style.RESET_ALL)
+        output_file = input(Fore.YELLOW + "Enter the path of the output file: " + Style.RESET_ALL)
         encrypt_file(input_file, output_file)
         set_execution_permissions(output_file)
     elif choice == "2":
-        input_file = input("Enter the path of the input file: ")
-        output_file = input("Enter the path of the output file: ")
+        input_file = input(Fore.YELLOW + "Enter the path of the input file: " + Style.RESET_ALL)
+        output_file = input(Fore.YELLOW + "Enter the path of the output file: " + Style.RESET_ALL)
         decrypt_file(input_file, output_file)
         set_execution_permissions(output_file)
     elif choice == "3":
         print(Fore.RED + "Cleaning up FG_Crypter" + Style.RESET_ALL)
         break
     else:
-        print(Fore.YELLOW + "Invalid choice. Please try again." + Style.RESET_ALL)
+        print(Fore.RED + "Invalid choice. Please try again." + Style.RESET_ALL)
