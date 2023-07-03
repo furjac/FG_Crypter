@@ -1,11 +1,11 @@
 <p align="center">
-<a href="https://github.com/furjac/Advanced-payload-generator">
+<a href="https://github.com/furjac/FG_Crypter">
     <img src="https://img.shields.io/github/license/furjac/Advanced-payload-generator" alt="GitHub license" />
   </a>
-  <a href="https://github.com/furjac/Advanced-payload-generator/stargazers">
+  <a href="https://github.com/furjac/FG_Crypter/stargazers">
     <img src="https://img.shields.io/github/stars/furjac/Advanced-payload-generator" alt="GitHub stars" />
   </a>
-  <img src="https://img.shields.io/github/downloads/furjac/Advanced-payload-generator/total" alt="GitHub all releases" />
+  <img src="https://img.shields.io/github/downloads/furjac/FG_Crypter/total" alt="GitHub all releases" />
   <a href="https://discord.gg/YN9RKxewsq">
     <img src="https://img.shields.io/discord/1026098018929360967.svg?label=&logo=discord&logoColor=ffffff&color=5865F2" alt="Join the FG_Trams discord server" />
   </a>
