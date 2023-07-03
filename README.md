@@ -1,9 +1,9 @@
 <p align="center">
 <a href="https://github.com/furjac/FG_Crypter">
-    <img src="https://img.shields.io/github/license/furjac/Advanced-payload-generator" alt="GitHub license" />
+    <img src="https://img.shields.io/github/license/furjac/FG_Crypter" alt="GitHub license" />
   </a>
   <a href="https://github.com/furjac/FG_Crypter/stargazers">
-    <img src="https://img.shields.io/github/stars/furjac/Advanced-payload-generator" alt="GitHub stars" />
+    <img src="https://img.shields.io/github/stars/furjac/FG_Crypter" alt="GitHub stars" />
   </a>
   <img src="https://img.shields.io/github/downloads/furjac/FG_Crypter/total" alt="GitHub all releases" />
   <a href="https://discord.gg/YN9RKxewsq">
