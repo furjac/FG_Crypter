@@ -20,7 +20,8 @@
 4. make sure to download this repo to ur pc or laptop (windows only)
 5. navigate where u downloaded the repo
 6. now run the code below in command prompt
-'''pip install requirements.txt '''
+
+```pip install requirements.txt ```
 
 # FG_Crypter
 This is a crypter built out of python this can crypt any exe using the aes-256bit encryption
