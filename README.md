@@ -18,8 +18,9 @@
 2. Make sure to check add to path while install
 3. otherwise the code wont work
 4. make sure to download this repo to ur pc or laptop (windows only)
-5. navigate where u downloaded the repo
-6. now run the code below in command prompt
+5. also u can do without downloading repo just download latest release 
+6. navigate where u downloaded the repo
+7. now run the code below in command prompt
 
 ```
 pip install requirements.txt
