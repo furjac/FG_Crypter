@@ -1,3 +1,5 @@
 pycryptodome==3.11.0
 colorama==0.4.4
 Nuitka==0.6.14.3
+zstandard
+ordered-set
