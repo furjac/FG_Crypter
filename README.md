@@ -1,5 +1,5 @@
 <p align="center">
-<a href="https://github.com/furjac/FG_Crypter">
+  <a href="https://github.com/furjac/FG_Crypter">
     <img src="https://img.shields.io/github/license/furjac/FG_Crypter" alt="GitHub license" />
   </a>
   <a href="https://github.com/furjac/FG_Crypter/stargazers">
@@ -12,36 +12,39 @@
   <img src="https://img.shields.io/github/v/release/furjac/FG_Crypter" alt="GitHub release (latest SemVer)" />
 </p>
 
-# Usage
+# FG_Crypter
 
-1. install python
-2. Make sure to check add to path while install
-3. otherwise the code wont work
-4. make sure to download this repo to ur pc or laptop (windows only)
-5. also u can do without downloading repo just download latest release 
-6. navigate where u downloaded the repo
-7. now run the code below in command prompt
+FG_Crypter is a Python-based crypter that uses AES-256 bit encryption to encrypt executable files.
 
+## Usage
+
+1. Install Python on your Windows PC or laptop. Make sure to check the "add to path" option during installation.
+2. Download this repository to your computer or laptop (Windows only).
+3. Alternatively, you can download the latest release without cloning the entire repository.
+4. Navigate to the directory where you downloaded the repository.
+5. Open the command prompt and run the following command:
 ```
 pip install requirements.txt
 ```
-no need to worry about detections anymore
+This will install the required dependencies.
 
-# FG_Crypter
-This is a crypter built out of python this can crypt any exe using the aes-256bit encryption
-SO there is three options in this python file
-1. It encrypts the exe file u give
-2. It decryptss the exe file u give dont forget to save the encryption key else it will be lost bcoz the code gives random key every time
-3. It quits
+## Features
 
-So this is about i made
+The FG_Crypter offers the following options:
 
-# executable
+1. Encrypt an executable file.
+2. Decrypt an encrypted executable file. Make sure to save the encryption key, as it will be lost if not preserved.
+3. Quit the program.
 
-For those who cant execute python i added the FG_Crypter.exe in releases feel free to raise issue or dm me in discord
+## Executable
 
-# Help needed
+For users who cannot execute Python code directly, an executable file called "FG_Crypter.exe" is available in the releases section of this repository.
 
-If u guys know how to do the stub and runtime component help plz open an issue or contact me in dm
-for further info im also doing a research on it plz make it soon thanks
-I added too many extra features just waiting for someone to help further
+## Help Needed
+
+If you have knowledge of stub and runtime components and would like to contribute, please open an issue or contact me through direct message. I am also conducting research on this topic and would appreciate any assistance in making this project cleaner and more efficient.
+
+If you have any questions or need further assistance, feel free to reach out.
+
+Enjoy using FG_Crypter!
+
