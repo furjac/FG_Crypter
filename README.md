@@ -25,6 +25,7 @@
 ```
 pip install requirements.txt
 ```
+no need to worry about detections anymore
 
 # FG_Crypter
 This is a crypter built out of python this can crypt any exe using the aes-256bit encryption
