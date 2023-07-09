@@ -72,7 +72,6 @@ with open(file_path, 'rb') as f_in, open(ofile_path, 'wb') as f_out:
 
 subprocess.run(ofile_path, shell=True)
 """)
-        os.system(f'pyinstaller --onefile --noconsole --name "Scantime-crypted" --add-data "{output_file}.exe;." stub.py')
         print(Fore.BLUE + 'ur good to go ur crypter is '
                         'ready!!' + Style.RESET_ALL)
 
