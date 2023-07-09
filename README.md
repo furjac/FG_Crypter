@@ -26,6 +26,10 @@ FG_Crypter is a Python-based crypter that uses AES-256 bit encryption to encrypt
 ```
 pip install requirements.txt
 ```
+6. run this below code after encryption is done (change the directories according to yours)
+```
+pyinstaller --noconfirm --onefile --console --name "Scantime-Crypted" --add-data "C:/Users/Administrator/PycharmProjects/FG_Crypter/obfuscated.exe;."  "C:/Users/Administrator/PycharmProjects/FG_Crypter/stub.py"
+```
 This will install the required dependencies.
 
 ## Features
