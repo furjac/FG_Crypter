@@ -28,8 +28,9 @@ pip install requirements.txt
 ```
 6. run this below code after encryption is done (change the directories according to yours)
 ```
-pyinstaller --noconfirm --onefile --noconsole --name "Scantime-Crypted" --add-data "C:/Users/Administrator/PycharmProjects/FG_Crypter/obfuscated.exe;."  "C:/Users/Administrator/PycharmProjects/FG_Crypter/stub.py"
+nuitka --standalone --mingw64 --remove-output --output-dir=D:\DB --windows-icon-from-ico="D:\DB\ico.ico" --windows-disable-console --include-data-file="D:\DB\leg.exe=." "D:\DB\stub.py"
 ```
+7. If want fud make sure to use this --clang (microsoft visual studio required for this command)
 This will install the required dependencies.
 
 ## Features
