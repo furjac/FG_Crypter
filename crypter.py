@@ -3,43 +3,86 @@ import platform
 import stat
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
-from colorama import Fore, Style
-import random
-from tkinter import *
+import tkinter as tk
+from tkinter import filedialog, messagebox
+import subprocess
+import sys
+import tkinter.ttk as ttk
+from multiprocessing import Process, Queue
+import queue
 
+# Global variables for key and IV
+key = None
+iv = None
+
+compilation_in_progress = False
+compilation_steps = [0]  # Use a list to store the value as a mutable object
+total_compilation_steps = 0
+progress_window_nuitka = None
+progress_window_pyinstaller = None
+
+# Global variables for GUI elements
+input_file_entry = None
+output_file_entry = None
+progress_var_nuitka = None
+progress_var_pyinstaller = None
+root = None
 
 def generate_random_key(key_size):
     return os.urandom(key_size)
 
-
 def generate_random_iv():
-    return os.urandom(16)  # Generate a random 128-bit IV
-
+    return os.urandom(16)
 
 def encrypt_file(input_file, output_file):
     global key, iv
-    key = generate_random_key(32)  # Generate a random 256-bit key
+    key = generate_random_key(32)
     iv = generate_random_iv()
     cipher = AES.new(key, AES.MODE_CBC, iv)
     with open(input_file, 'rb') as f_in, open(output_file, 'wb') as f_out:
-        f_out.write(iv)  # Write the IV to the output file
+        f_out.write(iv)
         while True:
             chunk = f_in.read(32)
             if len(chunk) == 0:
                 break
             elif len(chunk) % 32 != 0:
-                chunk = pad(chunk, 32)  # Pad the chunk if its length is not a multiple of 32
+                chunk = pad(chunk, 32)
             encrypted_chunk = cipher.encrypt(chunk)
             f_out.write(encrypted_chunk)
+    messagebox.showinfo("Encryption", "Encryption completed successfully.")
+    display_encryption_info()
 
-    print(Fore.GREEN + "Encryption completed successfully.")
-    print("Encryption Key: " + key.hex())
-    print("Encryption IV: " + iv.hex() + Style.RESET_ALL)
+def display_encryption_info():
+    messagebox.showinfo("Encryption Info", "Encryption completed successfully.\n"
+                                           "Encryption Key: " + key.hex() + "\n"
+                                           "Encryption IV: " + iv.hex())
 
+def decrypt_file(input_file, output_file):
+    key_input = key_input_entry.get()
+    key = bytes.fromhex(key_input)
+    iv_input = iv_input_entry.get()
+    iv = bytes.fromhex(iv_input)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    with open(input_file, 'rb') as f_in, open(output_file, 'wb') as f_out:
+        iv = f_in.read(16)  # Read the IV from the input file
+        while True:
+            encrypted_chunk = f_in.read(32)
+            if len(encrypted_chunk) == 0:
+                break
+            decrypted_chunk = cipher.decrypt(encrypted_chunk)
+            f_out.write(decrypted_chunk)
+    messagebox.showinfo("Decryption", "Decryption completed successfully.")
 
-def stub(output_file):
-    print("Making the stub for u Please be patient")
+def set_execution_permissions(file_path):
+    if platform.system() == 'Linux':
+        os.chmod(file_path, stat.S_IXUSR)
+    elif platform.system() == 'Windows':
+        renamed_file = file_path + '.exe'
+        os.rename(file_path, renamed_file)
+    else:
+        messagebox.showwarning("Unsupported Platform", "Execution permissions not set due to unsupported platform.")
 
+def create_stub(output_file):
     with open(output_file+'.exe', 'rb') as f:
         binary_data = f.read()
 
@@ -109,78 +152,165 @@ with open(file_path, 'rb') as f_in, open(ofile_path, 'wb') as f_out:
         decrypted_chunk = cipher.decrypt(encrypted_chunk)
         f_out.write(decrypted_chunk)
 
-subprocess.run(ofile_path,shell=True)
+subprocess.run(ofile_path, shell=True)
 sys.exit()
 """)
 
+def compile_with_nuitka_worker(input_file, output_file, progress_queue):
+    global total_compilation_steps
+    total_compilation_steps = 100
 
-def decrypt_file(input_file, output_file):
-    key = input("Enter the encryption key: ")
-    key = bytes.fromhex(key)
-    iv = input("Enter the encryption IV: ")
-    iv = bytes.fromhex(iv)
-    cipher = AES.new(key, AES.MODE_CBC, iv)
-    with open(input_file, 'rb') as f_in, open(output_file, 'wb') as f_out:
-        iv = f_in.read(16)  # Read the IV from the input file
-        while True:
-            encrypted_chunk = f_in.read(32)
-            if len(encrypted_chunk) == 0:
-                break
-            decrypted_chunk = cipher.decrypt(encrypted_chunk)
-            f_out.write(decrypted_chunk)
+    def update_progress():
+        if compilation_steps[0] < total_compilation_steps:
+            compilation_steps[0] += 1
+            progress_queue.put(compilation_steps[0])
+            progress_window_nuitka.after(10, update_progress)
+        else:
+            compilation_in_progress = False
 
-    print(Fore.GREEN + "Decryption completed successfully." + Style.RESET_ALL)
+    progress_window_nuitka = tk.Toplevel(root)
+    progress_window_nuitka.title("Nuitka Compilation Progress")
 
+    progress_var_nuitka = tk.IntVar()
+    progress_bar_nuitka = ttk.Progressbar(progress_window_nuitka, mode="determinate", variable=progress_var_nuitka, maximum=total_compilation_steps)
+    progress_bar_nuitka.pack()
 
-def set_execution_permissions(file_path):
-    if platform.system() == 'Linux':
-        os.chmod(file_path, stat.S_IXUSR)
-    elif platform.system() == 'Windows':
-        renamed_file = file_path + '.exe'
-        os.rename(file_path, renamed_file)
-    else:
-        print("Unsupported platform. Execution permissions not set.")
+    progress_window_nuitka.after(10, update_progress)
 
+    nuitka_command = (
+        f'nuitka --mingw64 --onefile --assume-yes-for-downloads '
+        f'--remove-output --include-data-file="{output_file}.exe=." '
+        f'--output-filename=Crypted "stub.py"'
+    )
+    subprocess.run(nuitka_command, shell=True)
+    progress_window_nuitka.destroy()
 
-def display_menu():
-    print(Fore.CYAN + "Welcome to the FG_Crypter!" + Style.RESET_ALL)
-    print("Please select an option:")
-    print(Fore.YELLOW + "1. Encrypt a file")
-    print("2. Decrypt a file")
-    print("3. Quit" + Style.RESET_ALL)
+def compile_with_nuitka(input_file, output_file):
+    progress_queue = Queue()
+    p = Process(target=compile_with_nuitka_worker, args=(input_file, output_file, progress_queue))
+    p.start()
+    while p.is_alive():
+        try:
+            progress = progress_queue.get_nowait()
+            progress_var_nuitka.set(progress)
+        except queue.Empty:
+            pass
+        root.update_idletasks()
+    p.join()
 
+def compile_with_pyinstaller_worker(output_file, progress_queue):
+    global total_compilation_steps, compilation_steps
+    total_compilation_steps = 100
 
-# Example usage
-while True:
-    os.system('cls')
-    display_menu()
-    choice = input(Fore.CYAN + "Enter your choice: " + Style.RESET_ALL)
+    def update_progress():
+        if compilation_steps < total_compilation_steps:
+            compilation_steps += 1
+            progress_queue.put(compilation_steps)
+            progress_window_pyinstaller.after(10, update_progress)
+        else:
+            compilation_in_progress = False
 
-    if choice == "1":
-        os.system('cls')
-        input_file = input(Fore.YELLOW + "Enter the path of the input file: " + Style.RESET_ALL)
-        output_file = input(Fore.YELLOW + "Enter the path of the output file: " + Style.RESET_ALL)
-        os.system('cls')
+    progress_window_pyinstaller = tk.Toplevel(root)
+    progress_window_pyinstaller.title("PyInstaller Compilation Progress")
+
+    progress_var_pyinstaller = tk.IntVar()
+    progress_bar_pyinstaller = ttk.Progressbar(progress_window_pyinstaller, mode="determinate", variable=progress_var_pyinstaller, maximum=total_compilation_steps)
+    progress_bar_pyinstaller.pack()
+
+    progress_window_pyinstaller.after(10, update_progress)
+
+    pyinstaller_command = (
+        f'pyinstaller --onefile stub.py --add-data "{output_file}.exe;." --name "py-crypted"'
+    )
+    subprocess.run(pyinstaller_command, shell=True)
+    progress_window_pyinstaller.destroy()
+
+def compile_with_pyinstaller(output_file):
+    progress_queue = Queue()
+    p = Process(target=compile_with_pyinstaller_worker, args=(output_file, progress_queue))
+    p.start()
+    while p.is_alive():
+        try:
+            progress = progress_queue.get_nowait()
+            progress_var_pyinstaller.set(progress)
+        except queue.Empty:
+            pass
+        root.update_idletasks()
+    p.join()
+
+def encrypt_button_click():
+    input_file = input_file_entry.get()
+    output_file = output_file_entry.get()
+    if input_file and output_file:
         encrypt_file(input_file, output_file)
         set_execution_permissions(output_file)
-        stub(output_file)
-        print(Fore.LIGHTGREEN_EX+"Creating nuitka compilation")
-        os.system(f'nuitka --mingw64 --onefile --assume-yes-for-downloads --remove-output --include-data-file="{output_file}.exe=." --output-filename=Crypted "stub.py"')
-        print(Fore.LIGHTGREEN_EX+"Creating pyinstaller compilation")
-        os.system(f'pyinstaller --onefile stub.py --add-data "{output_file}.exe;." --name "py-crypted"')
+        create_stub(output_file)
+        
+        # Compile with Nuitka
+        compile_with_nuitka(input_file, output_file)
+
+        # Compile with PyInstaller
+        compile_with_pyinstaller(output_file)
+        
         os.remove('stub.py')
-        print(Style.RESET_ALL)
-        input(Fore.LIGHTMAGENTA_EX + 'Your crypted exe is ready[Press Enter to continue]'+ Style.RESET_ALL)
-    elif choice == "2":
-        os.system('cls')
-        input_file = input(Fore.YELLOW + "Enter the path of the input file: " + Style.RESET_ALL)
-        output_file = input(Fore.YELLOW + "Enter the path of the output file: " + Style.RESET_ALL)
+        
+        messagebox.showinfo("Stub Creation", "Stub creation completed successfully.")
+
+def decrypt_button_click():
+    input_file = input_file_entry.get()
+    output_file = output_file_entry.get()
+    if input_file and output_file:
         decrypt_file(input_file, output_file)
-        set_execution_permissions(output_file)
-    elif choice == "3":
-        os.system('cls')
-        print(Fore.RED + "Cleaning up FG_Crypter" + Style.RESET_ALL)
-        break
-    else:
-        os.system('cls')
-        print(Fore.RED + "Invalid choice. Please try again." + Style.RESET_ALL)
+
+def create_gui():
+    global input_file_entry, output_file_entry, progress_var_nuitka, progress_var_pyinstaller, root
+
+    root = tk.Tk()
+    root.title("FG_Crypter")
+
+    def choose_input_file():
+        input_file = filedialog.askopenfilename(title="Select Input File")
+        input_file_entry.delete(0, tk.END)  # Clear the current entry
+        input_file_entry.insert(0, input_file)  # Set the selected file in the entry
+
+    def choose_output_file():
+        output_file = filedialog.asksaveasfilename(title="Select Output File")
+        output_file_entry.delete(0, tk.END)  # Clear the current entry
+        output_file_entry.insert(0, output_file)  # Set the selected file in the entry
+
+    input_file_label = tk.Label(root, text="Input File:")
+    input_file_label.pack()
+    input_file_entry = tk.Entry(root)
+    input_file_entry.pack()
+    input_file_button = tk.Button(root, text="Browse", command=choose_input_file)
+    input_file_button.pack()
+
+    output_file_label = tk.Label(root, text="Output File:")
+    output_file_label.pack()
+    output_file_entry = tk.Entry(root)
+    output_file_entry.pack()
+    output_file_button = tk.Button(root, text="Browse", command=choose_output_file)
+    output_file_button.pack()
+
+    encrypt_button = tk.Button(root, text="Encrypt File", command=encrypt_button_click)
+    encrypt_button.pack()
+
+    decrypt_button = tk.Button(root, text="Decrypt File", command=decrypt_button_click)
+    decrypt_button.pack()
+
+    quit_button = tk.Button(root, text="Quit", command=root.quit)
+    quit_button.pack()
+
+    # Initialize progress bars and variables
+    progress_var_nuitka = tk.IntVar()
+    progress_bar_nuitka = ttk.Progressbar(root, mode="determinate", variable=progress_var_nuitka, maximum=total_compilation_steps)
+    progress_bar_nuitka.pack()
+
+    progress_var_pyinstaller = tk.IntVar()
+    progress_bar_pyinstaller = ttk.Progressbar(root, mode="determinate", variable=progress_var_pyinstaller, maximum=total_compilation_steps)
+    progress_bar_pyinstaller.pack()
+
+    root.mainloop()
+
+if __name__ == "__main__":
+    create_gui()
