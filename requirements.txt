@@ -1,6 +1,10 @@
-pycryptodome==3.11.0
-colorama==0.4.4
+pycryptodome
 nuitka
 ordered-set
 zstandard
 pyinstaller
+customtkinter
+pyinstaller-versionfile
+pywin32
+pillow
+pyautogui
